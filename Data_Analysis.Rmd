@@ -1,0 +1,67 @@
+---
+title: "Analysis of Property Data Set"
+author: "Justin Gatonby"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, include = FALSE}
+library(tidyverse)
+```
+
+
+```{r get_data, include = FALSE}
+data <- read.csv("property_data(2).csv", header = TRUE) 
+```
+
+```{r clean_data, include = FALSE}
+# If the observation is classified as Vacant Land, 
+# bedrooms, bathrooms, and parkings spaces will be zero 
+data <- data %>% 
+  mutate(
+    Bedrooms = ifelse(Type == "land", 0, Bedrooms), 
+    Bathrooms = ifelse(Type == "land", 0, Bathrooms), 
+    Parking.Spaces = ifelse(Type == "land", 0, Parking.Spaces) 
+  )
+# If bedrooms or bathrooms are missing, remove observation from data set
+data <- data %>%
+  filter(!is.na(Bathrooms) & !is.na(Bedrooms))
+# Assume if parking spaces is missing, there os no parking available 
+data <- data %>% 
+  mutate(Parking.Spaces = ifelse(is.na(Parking.Spaces), 0, Parking.Spaces))
+# Manually add coordinates to those not found in coords.py 
+# Otherwise leave existing coordinates as given 
+data <- data %>%
+  mutate(
+    Latitude = ifelse(Location == "Costa Da Gama", -34.09616,
+               ifelse(Location == "Wynberg Upper", -34.00685,
+               ifelse(Location == "Browns Farm", -34.03064,
+               ifelse(Location == "Claremont Upper", -33.98342, 
+               ifelse(Location == "Clarkes Estate", -33.93851,
+               ifelse(Location == "Greenville Garden City", -33.78286,
+               ifelse(Location == "Kenilworth Upper", -33.99487, 
+               ifelse(Location == "Montana", -33.95787,
+               ifelse(Location == "Ottery East", -34.01786, Latitude))))))))),  
+    Longitude = ifelse(Location == "Costa Da Gama", 18.48278,
+                ifelse(Location == "Wynberg Upper", 18.46940,
+                ifelse(Location == "Browns Farm", 18.51234,
+                ifelse(Location == "Claremont Upper", 18.46048, 
+                ifelse(Location == "Clarkes Estate", 18.58340, 
+                ifelse(Location == "Greenville Garden City", 18.72129, 
+                ifelse(Location == "Kenilworth Upper", 18.47379, 
+                ifelse(Location == "Montana", 18.58109,
+                ifelse(Location == "Ottery East", 18.51088, Longitude))))))))))
+# Any observations still missing coordinates are removed 
+data <- data %>%
+  filter(!is.na(Latitude) & !is.na(Longitude))
+# Remove observations where both Floor Size and Erf Size are missing
+data <- data %>%
+  filter(!is.na(Floor.Size) | !is.na(Erf.Size))
+View(data) 
+```
+
+
