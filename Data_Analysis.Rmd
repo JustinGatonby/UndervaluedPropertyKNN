@@ -2,7 +2,9 @@
 title: "Analysis of Property Data Set"
 author: "Justin Gatonby"
 date: "`r Sys.Date()`"
-output: word_document
+output:
+  word_document:
+    reference_docx: Data_Analysis.docx
 ---
 
 ```{r setup, include=FALSE}
@@ -10,7 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r load_packages, include = FALSE}
+# Tidyverse includes dplyr and ggplot2 packages 
 library(tidyverse)
+library(ggtext)
+library(ggmap)
 ```
 
 
@@ -61,7 +66,127 @@ data <- data %>%
 # Remove observations where both Floor Size and Erf Size are missing
 data <- data %>%
   filter(!is.na(Floor.Size) | !is.na(Erf.Size))
-View(data) 
+# A single value needs to be removed, must have been an error in data collection 
+data <- data %>%
+  filter(Type != "l>\n")
+data <- data %>%
+  filter(Location != "Nooitgedacht")
 ```
 
+# Analysis of Property Prices by Type 
+
+```{r type, echo = FALSE, fig.width=8, fig.height=6, dpi=300}
+# Add features related to Price and order for visualization
+data <- data %>%
+  group_by(Type) %>%
+  mutate(
+    Type = str_to_title(Type), 
+    Median_price = median(Price), 
+    Type_with_count = paste0(Type, "(", n(), ")")
+  ) %>%
+  ungroup() %>%
+  mutate(Type_with_count = fct_reorder(Type_with_count, Median_price))
+# Median price of the data set 
+median_price <- median(data$Price)
+# Create box-plot 
+ggplot(data, aes(x = Type_with_count, y = Price, fill = Type)) + 
+  geom_boxplot(color = "black") + 
+  geom_hline(yintercept = median_price) +
+  scale_fill_brewer(palette = "Set1") + 
+  labs(title = "Property Prices by Type", 
+       x = "Property Type (with Counts)",
+       y = "Price (ZAR)"
+       ) + 
+  stat_summary(fun = median, geom = "text", aes(label = round(after_stat(y), 0)), 
+             vjust = -0.5, color = "black", size = 3) + 
+  theme_light() + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_markdown(
+      hjust = 0.5,
+      face = "bold",
+      size = 16,
+      margin = margin(b = 10)
+    ),
+  )
+# Remove the variable "Median_price" from the data set
+data <- data %>% select(-Median_price, -Type_with_count)
+```
+
+**Price Trends**
+
+* Indicates properties with greater amenities, development, and complexity command higher prices.
+* Suggests apartments and townhouses are typically more expensive than vacant land and houses. 
+
+**Distribution**
+
+* Vacant land has a symmetrical distribution, with a large range relative to its interquartile range, suggesting that there are outliers on both ends (overvalued and undervalued).
+* Houses have the largest interquartile range, suggesting that other variables will be needed to determine their price. 
+* Apartments have a long tail extending towards lower prices, displaying an opportunity to identify undervalued properties.
+* Townhouses are negatively skewed, with the bulk of townhouses concentrated near or above the median price, with fewer townhouses priced significantly lower than the median price and fewer opportunities to find undervalued properties. 
+
+**Composition**
+
+* The bulk of the data set is composed of apartments (66,4%), followed by houses (28,2%).
+* Land (2,5%) and townhouses (2,8%).
+
+\newpage
+
+# Analysis of Property Prices by Location
+
+```{r location, echo = FALSE, fig.width=8, fig.height=6, dpi=300}
+# 6 locations to help orient the viewer 
+key_locations <- data %>%
+  group_by(Location) %>%
+  filter(n() >= 3) %>%
+  ungroup() %>%
+  distinct(Location, Latitude, Longitude) %>%
+  slice_head(n = 6) # Select first 6 meeting above criteria
+# Add Greenville Garden City 
+greenville <- data %>%
+  filter(Location == "Greenville Garden City") %>%
+  distinct(Location, Latitude, Longitude) %>%
+  mutate(Location = "Greenville\nGarden City") # Add a newline for better layout
+# Add Sea Point
+sea_point <- data %>%
+  filter(Location == "Sea Point") %>%
+  distinct(Location, Latitude, Longitude)
+# Add Zonnebloem
+zonnebloem <- data %>%
+  filter(Location == "Zonnebloem") %>%
+  distinct(Location, Latitude, Longitude)
+# Combine key locations
+key_locations <- bind_rows(key_locations, greenville, sea_point, zonnebloem)
+# Create scatter plot with labels
+ggplot(data, aes(x = Latitude, y = Longitude)) +
+  geom_jitter(aes(color = Price), size = 2, alpha = 0.7, width = 0.01, height = 0.01) +
+  geom_text(
+    data = key_locations,
+    aes(x = Latitude, y = Longitude, label = Location),
+    size = 3, fontface = "bold", color = "black", nudge_y = 0.01
+  ) +
+  scale_color_viridis_c(option = "C", direction = 1, name = "Price (ZAR)") +
+  labs(
+    title = "Property Prices by Location",
+    subtitle = "Plotted by Coordinates",
+    x = "Latitude",
+    y = "Longitude"
+  ) +
+  theme_light() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    legend.position = "right"
+  )
+```
+
+**Price Trends**
+
+* Location is a strong predictor of property price. 
+* Areas around the coast tend to be more expensive, while those further away are on the lower end of the price range. 
+
+**Distribution and Composition**
+
+* Most properties in this data set are clustered around the coast. 
+* As longitude increases, measuring similarity becomes more challenging, as property dispersion and price variability increases. 
 
