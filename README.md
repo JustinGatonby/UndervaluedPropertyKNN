@@ -18,6 +18,10 @@ An R and Python project using K-Nearest Neighbors regression to identify underva
 * Observations meeting certain conditions are removed, as a result, the data set is reduced to 1324 observations.
 
 ## Data Visualisation and Analysis 
-* Visualisation is conducted using functions from the *ggplot2* package. 
+* Visualisation is primarily conducted using functions from the *ggplot2* package.
+* Important attributes are plotted to find which are most informative.
+* Concluded that a kNN model would be most effective at predicting property prices.
+
+## Modelling 
 
   
