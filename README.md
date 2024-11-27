@@ -15,7 +15,8 @@ An R and Python project using K-Nearest Neighbors regression to identify underva
 * The property_data(2).csv file is loaded to RStudio, where it is simply labeled "data".
 * Using functions from the *dplyr* package, the missing values are dealt with.
 * There are only missing values under "Erf Size" and "Floor Size", however, each observation must contain a value for at least one of the aforementioned variables. 
-* Observations meeting certain conditions are removed, as a result, the data set is reduced to 1324 observations.
+* Observations meeting certain conditions are removed, as a result, the data set is reduced to 1322 observations.
+* The cleaned data is stored as data.csv.
 
 ## Data Visualisation and Analysis 
 * Visualisation is primarily conducted using functions from the *ggplot2* package.
