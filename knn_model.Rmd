@@ -1,0 +1,119 @@
+---
+title: "KNN Model"
+author: "Justin Gatonby"
+date: '`r Sys.Date()`'
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, include = FALSE}
+library(tidyverse)
+library(randomForest)
+```
+
+```{r get_data}
+data <- read.csv("data.csv", header = TRUE) 
+# First iteration shows land impedes performance 
+data <- data %>%
+  filter(Type != "Land")
+```
+
+```{r rescaling}
+# Define the min-max normalization function
+normalize <- function(x) {
+  (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+
+# Normalize Erf.Size and Floor.Size separately, then combine them into Size
+data <- data %>%
+  mutate(
+    Erf.Size.Normalized = normalize(Erf.Size),
+    Floor.Size.Normalized = normalize(Floor.Size),
+    Size = ifelse(
+      !is.na(Erf.Size),
+      Erf.Size.Normalized,
+      Floor.Size.Normalized
+    )
+  )
+# Normalize all variables 
+data <- data %>%
+  mutate(
+    Longitude = normalize(Longitude),
+    Latitude = normalize(Latitude),
+    Bedrooms = normalize(Bedrooms),
+    Bathrooms = normalize(Bathrooms),
+    Parking.Spaces = normalize(Parking.Spaces),
+    Size = normalize(Size)  # Normalize the combined Size variable
+  )
+```
+
+```{r wights_for_distance}
+# Fit a random forest model
+rf_model <- randomForest(Price ~ Longitude + Latitude + Bedrooms + Bathrooms + Parking.Spaces + Size, data = data)
+# Extract and normalize feature importance
+importance_scores <- rf_model$importance
+weights <- importance_scores / sum(importance_scores)
+weights
+```
+
+```{r kNN}
+# Add an attribute for each property's predicted price
+data$Predicted <- numeric(nrow(data))
+# Implement model 
+for (i in 1:nrow(data)) {
+  # Collect all variables of the observation itself
+  property <- as.list(data[i,])
+  long <- property$Longitude 
+  lat <- property$Latitude
+  bed <- property$Bedrooms
+  bath <- property$Bathrooms 
+  park <- property$Parking.Spaces
+  size <- property$Size
+  # Initialize a vector to store distances and the observations themselves
+  distances <- list() 
+  # Calculate the distance between the property and the rest of the observations in the data set 
+  for (j in 1:nrow(data)) {
+    # Conditional to eliminate the observation itself
+    property_1 <- as.list(data[j,])
+    if (i != j) {
+      long_1 <- property_1$Longitude
+      lat_1 <- property_1$Latitude
+      bed_1 <- property_1$Bedrooms
+      bath_1 <- property_1$Bathrooms 
+      park_1 <- property_1$Parking.Spaces
+      size_1 <- property_1$Size
+      # Calculate euclidean distance
+      distance <- sqrt(((long-long_1)^2)*weights[1] +
+                   ((lat-lat_1)^2)*weights[2] + 
+                   ((bed-bed_1)^2)*weights[3] + 
+                   ((bath-bath_1)^2)*weights[4] +
+                   ((park-park_1)^2)*weights[5] +
+                   ((size-size_1)^2)*weights[6])
+      # Add distance and the observation to list 
+      distances[[as.character(j)]] <- list(
+        dist = distance, 
+        obs = property_1
+      )
+    } else {
+      distances[[as.character(j)]] <- list(
+        dist = Inf,
+        obs = property_1
+      ) 
+    }
+  }
+  # Find the k nearest neighbors 
+  sorted_list <- distances[order(sapply(distances, function(x) x$dist))]
+  k_closest <- sorted_list[1:k]
+  price <- vector("numeric", k) 
+  for (m in 1:k) {
+    item <- k_closest[[m]]
+    price[m] <- item$obs$Price 
+  }
+  value <- sum(price) / k
+  data$Predicted[i] <- value 
+}
+write.csv(data, "final_dataset.csv", row.names = FALSE)
+```
