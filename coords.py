@@ -37,5 +37,4 @@ def main():
     # Read in data scraped from Property24
     data = pd.read_csv("property_data.csv")
     location(data)
-  
 if __name__ == "__main__": main() 
