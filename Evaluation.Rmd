@@ -16,6 +16,9 @@ library(randomForest)
 
 ```{r get_data}
 data <- read.csv("data.csv", header = TRUE) 
+# First iteration shows land impedes performance 
+data <- data %>%
+  filter(Type != "Land")
 ```
 
 ```{r rescaling}
