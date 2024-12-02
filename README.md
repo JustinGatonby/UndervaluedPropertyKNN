@@ -1,5 +1,5 @@
 # UndervaluedPropertyKNN
-An R and Python project using K-Nearest Neighbors regression to identify undervalued properties in the Western Cape, South Africa.
+An R and Python project using K-Nearest Neighbors regression to identify undervalued properties in the Cape Town, South Africa.
 
 ## Overview 
 * Scrapes data from the Property24 website.
@@ -28,7 +28,7 @@ An R and Python project using K-Nearest Neighbors regression to identify underva
 ## Data Visualisation and Analysis 
 * Visualisation is primarily conducted using functions from the *ggplot2* package.
 * Important attributes are plotted to find those which are most informative.
-* The findings concluded that a kNN model would be most effective at predicting property prices.
+* The analysis concluded that a kNN model would be most effective at predicting property prices.
 
 ## Modelling and Evaluation
 * Variables selected during the process of data visualization and analysis are used in a kNN model.
@@ -36,12 +36,11 @@ An R and Python project using K-Nearest Neighbors regression to identify underva
 * Each variable is weighted according to its importance, determined by a random forest model. The output of which can be found under weights_of_attributes.png.
 * Then various values of k are tested and their performance measured using mean absolute error. The output of which can be found under evaluating_k.png
 * The most effective model used the average price of the five most similar properties, as its prediction.
+* Observations classified as vacant land were removed.
 
 ## Final Report
-* The file labelled final_report.csv contains all relevant attributes collected.
-* Properties classified as vacant land are removed due to unrealistic 
-* Observations are ranked from most undervalued to most overpriced.
-* 
+* The file labelled final_report.csv contains all observations ordered from most undervalued to most overpriced.
+
 
 
   
