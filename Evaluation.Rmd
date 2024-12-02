@@ -35,7 +35,6 @@ data <- data %>%
       Floor.Size.Normalized
     )
   )
-
 # Normalize all variables 
 data <- data %>%
   mutate(
@@ -46,18 +45,15 @@ data <- data %>%
     Parking.Spaces = normalize(Parking.Spaces),
     Size = normalize(Size)  # Normalize the combined Size variable
   )
-
 ```
 
 ```{r wights_for_distance}
 # Fit a random forest model
 rf_model <- randomForest(Price ~ Longitude + Latitude + Bedrooms + Bathrooms + Parking.Spaces + Size, data = data)
-
 # Extract and normalize feature importance
 importance_scores <- rf_model$importance
 weights <- importance_scores / sum(importance_scores)
 weights
-
 ```
 
 ```{r kNN}
