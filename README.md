@@ -40,6 +40,7 @@ An R and Python project using K-Nearest Neighbors regression to identify underva
 
 ## Final Report
 * The file labelled final_report.csv contains all observations ordered from most undervalued to most overpriced.
+* Naturally, the 
 
 
 
