@@ -12,13 +12,8 @@ def add_difference(df):
     df = df.sort_values(by='Difference', ascending=False)
     return df 
 
-def remove_land(df):
-    data_without_land = df[df['Type'] != 'Land']
-    return data_without_land
-
 def main():
     df = get_data() 
-    df = remove_land(df) 
     df = add_difference(df) 
     df.to_csv('final_report.csv', index=False)
 if __name__ == "__main__": main() 
