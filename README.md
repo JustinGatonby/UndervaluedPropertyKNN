@@ -40,7 +40,10 @@ An R and Python project using K-Nearest Neighbors regression to identify underva
 
 ## Final Report
 * The file labelled final_report.csv contains all observations ordered from most undervalued to most overpriced.
-* Naturally, the 
+* Naturally, some values are classified as extremely undervalued, when this is not the case.
+* This is due to limits on data availability.
+* Image processing may be used to obtain better estimates, but ultimately, scraping from a website limits the amount of data which can be acquired.
+* Therefore, the final data set gives some indication of whether a property is undervalued or not, but does not produce accurate price estimates at extreme ends (properties considered to be extremely overpriced or undervalued). 
 
 
 
