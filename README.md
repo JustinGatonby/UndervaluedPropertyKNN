@@ -1,6 +1,13 @@
 # UndervaluedPropertyKNN
 An R and Python project using K-Nearest Neighbors regression to identify undervalued properties in the Western Cape, South Africa.
 
+## Overview 
+* Scrapes data from the Property24 website.
+* Cleans data set and adds features.
+* Visualizes and analyzes data.
+* Implements and evaluates a kNN model.
+* Produces a report on findings.
+
 ## Data Collection 
 * Data collection is implemented in Python. 
 * The source code of Propery24’s website is converted into a string.
