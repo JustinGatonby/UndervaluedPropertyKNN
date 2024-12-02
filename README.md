@@ -23,6 +23,12 @@ An R and Python project using K-Nearest Neighbors regression to identify underva
 * Important attributes are plotted to find which are most informative.
 * Concluded that a kNN model would be most effective at predicting property prices.
 
-## Modelling 
+## Modelling and Evaluation
+* Variables selected during the process of data visualization and analysis are used in a knn model.
+* The code for the initial model and the tests conducted on it can be found under Evaluation.Rmd.
+* Each variable is weighted according to its importance, determined by a random forest model. The output of which can be found under weights_of_attributes.png.
+* Then various values of k are tested and their performance measured using mean absolute error.The output of which can be found under evaluating_k.png
+* The most effective model took the average price of the five most similar properties.
+
 
   
