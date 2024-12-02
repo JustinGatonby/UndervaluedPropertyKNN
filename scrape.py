@@ -189,5 +189,4 @@ def main():
     num_pages = get_num_pages(first_page)
     # csv of scraped data 
     collect_data(first_page, num_pages) 
-
 if __name__ == "__main__": main() 
